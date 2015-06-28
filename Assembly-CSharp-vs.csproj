@@ -46,11 +46,16 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\KnightInChainMail\MyScripts\Mecanim_Control_melee.cs" />
      <Compile Include="Assets\Scripts\AEntity.cs" />
      <Compile Include="Assets\Scripts\CameraController.cs" />
      <Compile Include="Assets\Scripts\Character.cs" />
      <Compile Include="Assets\Scripts\Enemy.cs" />
      <Compile Include="Assets\Scripts\Weapon.cs" />
+     <None Include="Assets\SkeletonData\animations.txt" />
+ <Reference Include="Assembly-UnityScript-firstpass">
+ <HintPath>E:/Unity/3DProject 01/Library/ScriptAssemblies/Assembly-UnityScript-firstpass.dll</HintPath>
+ </Reference>
  <Reference Include="UnityEngine.UI">
  <HintPath>E:/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

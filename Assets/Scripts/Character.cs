@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class Character : AEntity {
-
-	public BoxCollider weapon;
-	private Vector3 mousePos;
+	
 	private float energy = 100;
+	private Rigidbody playerRb;
 
 	private IEnumerator energyRegeneration() {
 		while (true) {
@@ -17,20 +17,20 @@ public class Character : AEntity {
 		}
 	}
 
-	private IEnumerator attack() {
+	private IEnumerator specialAttack() {
 		weapon.enabled = true;
-		animator.SetBool ("Attack", true);
-		yield return new WaitForSeconds(2);
-		animator.SetBool ("Attack", false);
+		playerRb.AddTorque (Vector3.up * 10000f);
+		yield return new WaitForSeconds(4);
 		weapon.enabled = false;
 	}
-	
+
 	private void moveChar(Vector3 direction) {
-		if (Input.GetKeyDown ("space") && energy >= 25) {
+		if (Input.GetKeyDown (KeyCode.LeftShift) && energy >= 25) {
 			energy -= 25;
-			GetComponent<Rigidbody> ().AddRelativeForce (new Vector3 (direction.x * 4f, direction.y + 2f, direction.z * 4f) * 100f);
-		}
-		else
+			playerRb.AddRelativeForce (new Vector3 (direction.x * 4f, direction.y + 2f, direction.z * 4f) * 100f);
+		} else if (Input.GetKeyDown("space")) {
+			playerRb.AddForce(Vector3.up * 500f);
+		} else
 			move (direction);
 	}
 
@@ -53,40 +53,48 @@ public class Character : AEntity {
 			moveChar (Vector3.forward);
 		else if (Input.GetKey ("s"))
 			moveChar (Vector3.back);
+		else if (Input.GetKeyDown("space"))
+			playerRb.AddForce(Vector3.up * 500f);
 		else
 			animator.SetBool ("Walk", false);
 
 		// Attack
-		if (Input.GetMouseButtonDown (0)) {
-			StartCoroutine (attack ());
-		}
+		if (Input.GetMouseButtonDown (0))
+			StartCoroutine (attack (2));
+		else if (Input.GetMouseButtonDown (1))
+			StartCoroutine (specialAttack ());
 	}
 
 	// Handle Rotation with mouse position on X
 	private void rotationHandler() {
-		transform.Rotate (new Vector3 (0, (Input.mousePosition.x - mousePos.x) / 6, 0));
-		mousePos = Input.mousePosition;
+		transform.Rotate (new Vector3 (0, Input.GetAxis("Mouse X") * 4, 0));
+	}
+
+	void OnGUI() {
+		GUI.TextField (new Rect(10, 10, 60, 20), "Life : " + life.ToString(), 25);
+		GUI.TextField (new Rect(10, 35, 80, 20), "Energy : " + energy.ToString(), 25);
 	}
 
 	void Awake() {
 		// mouse cursor can't go out of game window, move it to gameManager later
-		Cursor.lockState = CursorLockMode.Confined;
+		Cursor.lockState = CursorLockMode.Locked;
 	}
 
 	void Start() {
 		// Hide mouse cursor, move it to gameManager later
 		Cursor.visible = false;
 
-		animator = gameObject.GetComponent<Animator> ();
-
-		mousePos = Input.mousePosition;
+		animator = GetComponent<Animator> ();
+		playerRb = GetComponent<Rigidbody> ();
 
 		// Launch coroutine for energy regeneration over time
 		StartCoroutine (energyRegeneration());
 	}
 
 	void Update () {
-		inputHandler ();
-		rotationHandler ();
+		if (!isDead) {
+			inputHandler ();
+			rotationHandler ();
+		}
 	}
 }
